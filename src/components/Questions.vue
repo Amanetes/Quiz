@@ -1,13 +1,25 @@
 <template>
   <div class="questions-ctr">
     <div class="progress">
-      <div class="bar"></div>
-      <div class="status">1 out of 3 questions answered</div>
+      <div class="bar" :style="{ width: `${questionsAnswered / questions.length * 100}%`}"></div>
+      <div class="status">
+        {{ questionsAnswered }} out of {{ questions.length }} questions answered
+      </div>
     </div>
-    <div class="single-question" v-for="question in questions" :key="question.q">
+    <div
+        class="single-question"
+        v-for="(question, qi) in questions"
+        :key="question.q"
+        v-show="questionsAnswered === qi"
+    >
       <div class="question">{{ question.q }}</div>
       <div class="answers">
-        <div class="answer" v-for="answer in question.answers" :key="answer.text">
+        <div
+            class="answer"
+            v-for="answer in question.answers"
+            :key="answer.text"
+            @click.prevent="selectAnswer(answer.is_correct)"
+        >
           {{ answer.text }}
         </div>
       </div>
@@ -23,10 +35,19 @@ export default {
       required: true,
       validator: (questions) => {
         return questions.every(question => typeof question.q === 'string')
-      }
-    }
-  }
-}
+      },
+    },
+    questionsAnswered: {
+      type: Number
+    },
+  },
+  emits: ["question-answered"],
+  methods: {
+    selectAnswer(is_correct) {
+      this.$emit("question-answered", is_correct);
+    },
+  },
+};
 </script>
 
 <style scoped>
